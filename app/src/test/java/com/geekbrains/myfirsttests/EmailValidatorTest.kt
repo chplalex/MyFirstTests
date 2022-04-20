@@ -1,5 +1,6 @@
 package com.geekbrains.myfirsttests
 
+import assertk.tableOf
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -7,49 +8,33 @@ import org.junit.Test
 class EmailValidatorTest {
 
     @Test
-    fun emailValidator_CorrectEmailSimple_ReturnsTrue() {
-        assertTrue(EmailValidator.isValidEmail("name@email.com"))
+    fun `positive cases`() {
+        tableOf("email")
+            .row("name@email.com")
+            .row("name@email.co.uk")
+            .row("name.family@email.co.uk")
+            .forAll { email ->
+
+                val actual = EmailValidator.isValidEmail(email)
+
+                assertTrue(actual)
+            }
     }
 
     @Test
-    fun emailValidator_CorrectEmailSubDomain_ReturnsTrue() {
-        assertTrue(EmailValidator.isValidEmail("name@email.co.uk"))
-    }
+    fun `negative cases`() {
+        tableOf("email")
+            .row(null as String?)
+            .row("name@email")
+            .row("name@email..com")
+            .row("@email.com")
+            .row("user@")
+            .row("пользователь@домен.ру")
+            .forAll { email ->
 
-    @Test
-    fun emailValidator_InvalidEmailNoTld_ReturnsFalse() {
-        assertFalse(EmailValidator.isValidEmail("name@email"))
-    }
+                val actual = EmailValidator.isValidEmail(email)
 
-    @Test
-    fun emailValidator_InvalidEmailDoubleDot_ReturnsFalse() {
-        assertFalse(EmailValidator.isValidEmail("name@email..com"))
-    }
-
-    @Test
-    fun emailValidator_InvalidEmailNoUsername_ReturnsFalse() {
-        assertFalse(EmailValidator.isValidEmail("@email.com"))
-    }
-
-    @Test
-    fun emailValidator_EmptyString_ReturnsFalse() {
-        assertFalse(EmailValidator.isValidEmail(""))
-    }
-
-    @Test
-    fun emailValidator_NullEmail_ReturnsFalse() {
-        assertFalse(EmailValidator.isValidEmail(null))
-    }
-
-    // new tests
-
-    @Test
-    fun emailValidator_InvalidEmailNoDomain_ReturnsFalse() {
-        assertFalse(EmailValidator.isValidEmail("user@"))
-    }
-
-    @Test
-    fun emailValidator_InvalidEmailNoLatinLetters() {
-        assertFalse(EmailValidator.isValidEmail("пользователь@домен.ру"))
+                assertFalse(actual)
+            }
     }
 }
